@@ -33,18 +33,18 @@ static BOOL eventTriggered;
         });
         return ;
     }
-    
+
     //AXIsProcessTrustedWithOptions(CFDictionaryCreate(NULL, (const void*[]){ kAXTrustedCheckOptionPrompt }, (const void*[]){ kCFBooleanTrue }, 1, NULL, NULL));
-    
+
     windowController = [[CanvasWindowController alloc] init];
-    
+
     CGEventMask eventMask = CGEventMaskBit(kCGEventRightMouseDown) | CGEventMaskBit(kCGEventRightMouseDragged) | CGEventMaskBit(kCGEventRightMouseUp) | CGEventMaskBit(kCGEventLeftMouseDown) | CGEventMaskBit(kCGEventScrollWheel);
     mouseEventTap = CGEventTapCreate(kCGHIDEventTap, kCGHeadInsertEventTap, kCGEventTapOptionDefault, eventMask, mouseEventCallback, NULL);
-    
+
 
     const void * keys[] = { kAXTrustedCheckOptionPrompt };
     const void * values[] = { kCFBooleanTrue };
-    
+
     CFDictionaryRef options = CFDictionaryCreate(
                                                  kCFAllocatorDefault,
                                                  keys,
@@ -52,9 +52,9 @@ static BOOL eventTriggered;
                                                  sizeof(keys) / sizeof(*keys),
                                                  &kCFCopyStringDictionaryKeyCallBacks,
                                                  &kCFTypeDictionaryValueCallBacks);
-    
+
     BOOL accessibilityEnabled = AXIsProcessTrustedWithOptions(options);
-    
+
     if (accessibilityEnabled) {
         CFRunLoopSourceRef runLoopSource = CFMachPortCreateRunLoopSource(kCFAllocatorDefault, mouseEventTap, 0);
         CFRunLoopAddSource(CFRunLoopGetCurrent(), runLoopSource, kCFRunLoopCommonModes);
@@ -64,23 +64,23 @@ static BOOL eventTriggered;
         NSAlert *alert = [[NSAlert alloc] init];
         [alert setAlertStyle:NSInformationalAlertStyle];
         [alert setMessageText:NSLocalizedString(@"On macOS Mojave(10.14) and later, you must manually enable Accessibility permission for MacGesture to work.\n Please goto System Preferences -> Security & Privacy -> Privacy -> Accessibility to enable it for MacGesture.\nIf is is already enabled but MacGesture is still not working, please re-open MacGesture.", nil)];
-        
+
         [alert runModal];
-        
+
     }
 
     direction = [NSMutableString string];
     isEnabled = YES;
-    
+
     NSURL *defaultPrefsFile = [[NSBundle mainBundle]
                                URLForResource:@"DefaultPreferences" withExtension:@"plist"];
     NSDictionary *defaultPrefs =
     [NSDictionary dictionaryWithContentsOfURL:defaultPrefsFile];
     [[NSUserDefaults standardUserDefaults] registerDefaults:defaultPrefs];
-    
+
     if (![[NSUserDefaults standardUserDefaults] boolForKey:@"hasRunBefore"]) {
         [[NSUserDefaults standardUserDefaults] setBool:YES forKey:@"hasRunBefore"];
-        
+
         NSAlert *alert = [[NSAlert alloc] init];
         [alert addButtonWithTitle:NSLocalizedString(@"Open README in browser", nil)];
         [alert addButtonWithTitle:NSLocalizedString(@"Skip", nil)];
@@ -92,36 +92,36 @@ static BOOL eventTriggered;
             [[NSWorkspace sharedWorkspace] openURL:[NSURL URLWithString:[NSString stringWithFormat:@"file://%@", readme]]];
         }
     }
-    
+
     if (![[NSUserDefaults standardUserDefaults] boolForKey:@"hasRun_2.0.4_Before"]) {
         [[NSUserDefaults standardUserDefaults] setBool:YES forKey:@"hasRun_2.0.4_Before"];
     }
-    
+
     if (![[NSUserDefaults standardUserDefaults] boolForKey:@"hasRun_2.0.5_Before"]) {
         [[NSUserDefaults standardUserDefaults] setBool:YES forKey:@"showGestureNote"];
         [[NSUserDefaults standardUserDefaults] setBool:YES forKey:@"hasRun_2.0.5_Before"];
     }
-    
+
     [BWFilter compatibleProcedureWithPreviousVersionBlockRules];
-    
+
     if ([[NSUserDefaults standardUserDefaults] boolForKey:@"openPrefOnStartup"]) {
         [self openPreferences:self];
     }
-    
+
     [self updateStatusBarItem];
-    
+
     [center setSuspended:NO];
     [center addObserver:self selector:@selector(receiveOpenPreferencesNotification:) name:name object:nil suspensionBehavior:NSNotificationSuspensionBehaviorDeliverImmediately];
-    
+
     [[NSUserNotificationCenter defaultUserNotificationCenter] setDelegate:self];
-    
+
     lastMouseWheelEventTime = 0;
 }
 
 - (void)updateStatusBarItem {
     if ([[NSUserDefaults standardUserDefaults] boolForKey:@"showIconInStatusBar"]) {
         [self setStatusItem:[[NSStatusBar systemStatusBar] statusItemWithLength:NSVariableStatusItemLength]];
-        
+
         NSImage *menuIcon = [NSImage imageNamed:@"Menu Icon Enabled"];
         //NSImage *highlightIcon = [NSImage imageNamed:@"Menu Icon"]; // Yes, we're using the exact same image asset.
         //[highlightIcon setTemplate:YES]; // Allows the correct highlighting of the icon when the menu is clicked.
@@ -144,7 +144,7 @@ static BOOL eventTriggered;
 
 - (void)showPreferences {
     [NSApp activateIgnoringOtherApps:YES];
-    
+
     //instantiate preferences window controller
     if (!_preferencesWindowController) {
         _preferencesWindowController = [[AppPrefsWindowController alloc] initWithWindowNibName:@"Preferences"];
@@ -191,7 +191,7 @@ static void addDirection(unichar dir, bool allowSameDirection) {
     } else {
         lastDirectionChar = ' ';
     }
-    
+
     if (dir != lastDirectionChar || allowSameDirection) {
         NSString *temp = [NSString stringWithCharacters:&dir length:1];
         [direction appendString:temp];
@@ -211,10 +211,10 @@ static void updateDirections(NSEvent *event) {
     if (absX + absY < threshold) {
         return; // ignore short distance
     }
-    
+
     lastLocation = event.locationInWindow;
-    
-    
+
+
     if (absX > absY) {
         if (deltaX > 0) {
             addDirection('R', false);
@@ -236,7 +236,7 @@ static void updateDirections(NSEvent *event) {
             return;
         }
     }
-    
+
 }
 
 static bool handleGesture(BOOL lastGesture) {
@@ -250,11 +250,11 @@ void resetDirection() {
 // See https://developer.apple.com/library/mac/documentation/Carbon/Reference/QuartzEventServicesRef/#//apple_ref/c/tdef/CGEventTapCallBack
 static CGEventRef mouseEventCallback(CGEventTapProxy proxy, CGEventType type, CGEventRef event, void *refcon) {
     static BOOL shouldShow;
-    
+
     if (!isEnabled) {
         return event;
     }
-    
+
     NSEvent *mouseEvent;
     switch (type) {
         case kCGEventRightMouseDown:
@@ -275,10 +275,10 @@ static CGEventRef mouseEventCallback(CGEventTapProxy proxy, CGEventType type, CG
                 shouldShow = YES;
                 eventTriggered = NO;
             }
-            
+
             if (mouseDownEvent) { // mouseDownEvent may not release when kCGEventTapDisabledByTimeout
                 resetDirection();
-                
+
                 CGPoint location = CGEventGetLocation(mouseDownEvent);
                 CGEventPost(kCGSessionEventTap, mouseDownEvent);
                 CFRelease(mouseDownEvent);
@@ -295,7 +295,7 @@ static CGEventRef mouseEventCallback(CGEventTapProxy proxy, CGEventType type, CG
             mouseEvent = [NSEvent eventWithCGEvent:event];
             mouseDownEvent = event;
             CFRetain(mouseDownEvent);
-            
+
             [windowController handleMouseEvent:mouseEvent];
             lastLocation = mouseEvent.locationInWindow;
             break;
@@ -303,10 +303,10 @@ static CGEventRef mouseEventCallback(CGEventTapProxy proxy, CGEventType type, CG
             if (!shouldShow){
                 return event;
             }
-            
+
             if (mouseDownEvent) {
                 mouseEvent = [NSEvent eventWithCGEvent:event];
-                
+
                 // Hack when Synergy is started after MacGesture
                 // -- when dragging to a client, the mouse point resets to (server_screenwidth/2+rnd(-1,1),server_screenheight/2+rnd(-1,1))
                 if (mouseDraggedEvent) {
@@ -316,9 +316,9 @@ static CGEventRef mouseEventCallback(CGEventTapProxy proxy, CGEventType type, CG
                     NSRect screen = [[NSScreen mainScreen] frame];
                     float d1 = fabs(lastPoint.x - screen.origin.x), d2 = fabs(lastPoint.x - screen.origin.x - screen.size.width);
                     float d3 = fabs(lastPoint.y - screen.origin.y), d4 = fabs(lastPoint.y - screen.origin.y - screen.size.height);
-                    
+
                     float d5 = fabs(currentPoint.x - screen.origin.x - screen.size.width/2), d6 = fabs(currentPoint.y - screen.origin.y - screen.size.height/2);
-                    
+
                     const float threshold = 30.0;
                     if ((d1 < threshold || d2 < threshold || d3 < threshold || d4 < threshold) &&
                         d5 < threshold && d6 < threshold) {
@@ -329,15 +329,15 @@ static CGEventRef mouseEventCallback(CGEventTapProxy proxy, CGEventType type, CG
                         resetDirection();
                         break;
                     }
-                    
+
                 }
-                
+
                 if (mouseDraggedEvent) {
                     CFRelease(mouseDraggedEvent);
                 }
                 mouseDraggedEvent = event;
                 CFRetain(mouseDraggedEvent);
-                
+
                 [windowController handleMouseEvent:mouseEvent];
                 updateDirections(mouseEvent);
             }
@@ -346,7 +346,7 @@ static CGEventRef mouseEventCallback(CGEventTapProxy proxy, CGEventType type, CG
             if (!shouldShow){
                 return event;
             }
-            
+
             if (mouseDownEvent) {
                 mouseEvent = [NSEvent eventWithCGEvent:event];
                 [windowController handleMouseEvent:mouseEvent];
@@ -354,27 +354,27 @@ static CGEventRef mouseEventCallback(CGEventTapProxy proxy, CGEventType type, CG
                 if (handleGesture(true)) {
                     eventTriggered = YES;
                 }
-                
+
                 if (!eventTriggered) {
                     CGEventPost(kCGSessionEventTap, mouseDownEvent);
                     //if (mouseDraggedEvent) {
                     //    CGEventPost(kCGSessionEventTap, mouseDraggedEvent);
                     //}
-                    
+
                     // Fix issue #70 dunno why here
                     usleep(1000);
                     CGEventPost(kCGSessionEventTap, event);
                 }
                 CFRelease(mouseDownEvent);
             }
-            
+
             if (mouseDraggedEvent) {
                 CFRelease(mouseDraggedEvent);
             }
-            
+
             mouseDownEvent = mouseDraggedEvent = NULL;
             shouldShow = NO;
-            
+
             resetDirection();
             break;
         }
@@ -383,9 +383,9 @@ static CGEventRef mouseEventCallback(CGEventTapProxy proxy, CGEventType type, CG
                 return event;
             }
             double delta = CGEventGetDoubleValueField(event, kCGScrollWheelEventDeltaAxis1);
-            
+
             // NSLog(@"scrollWheel delta:%f", delta);
-            
+
             NSTimeInterval current = [NSDate timeIntervalSinceReferenceDate];
             if (current - lastMouseWheelEventTime > 0.3) {
                 if (delta > 0) {
@@ -417,7 +417,7 @@ static CGEventRef mouseEventCallback(CGEventTapProxy proxy, CGEventType type, CG
         default:
             return event;
     }
-    
+
     return NULL;
 }
 

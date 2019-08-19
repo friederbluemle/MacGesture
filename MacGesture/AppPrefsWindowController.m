@@ -43,17 +43,17 @@ static NSArray *exampleAppleScripts;
 - (void)changeSize:(NSInteger *)index changeSizeButton:(NSButton *)button preferenceView:(NSView *)view {
     *index += 1;
     *index %= PREF_WINDOW_SIZECOUNT;
-    
+
     NSString *title;
-    
+
     if (*index != PREF_WINDOW_SIZECOUNT - 1) {
         title = NSLocalizedString(@"Go bigger", nil);
     } else {
         title = NSLocalizedString(@"Reset size", nil);
     }
-    
+
     [button setTitle:title];
-    
+
     [view setFrameSize:PREF_WINDOW_SIZES[*index]];
     [self changeWindowSizeToFitInsideView:view];
     [self crossFadeView:view withView:view];
@@ -66,16 +66,16 @@ static NSArray *exampleAppleScripts;
 - (LSSharedFileListItemRef)itemRefWithListRef:(LSSharedFileListRef)listRef {
     NSURL *bundleURL = [NSBundle mainBundle].bundleURL;
     CFArrayRef arr = LSSharedFileListCopySnapshot(listRef, NULL);
-    
+
     for (NSInteger i = 0; i < CFArrayGetCount(arr); ++i) {
         LSSharedFileListItemRef itemRef = (LSSharedFileListItemRef)CFArrayGetValueAtIndex(arr, i);
         CFURLRef urlRef;
         OSStatus error = LSSharedFileListItemResolve(itemRef, 0, &urlRef, NULL);
-        
+
         if (error != noErr) {
             continue;
         }
-        
+
         if (CFEqual(urlRef, (__bridge CFURLRef)bundleURL)) {
             CFRetain(itemRef);
             CFRelease(arr);
@@ -91,7 +91,7 @@ static NSArray *exampleAppleScripts;
 - (BOOL)isLoginItem {
     LSSharedFileListRef loginItems = LSSharedFileListCreate(NULL, kLSSharedFileListSessionLoginItems, NULL);
     if (!loginItems) return NO;
-    
+
     LSSharedFileListItemRef loginItemRef = [self itemRefWithListRef:loginItems];
     if (!loginItemRef) {
         CFRelease(loginItems);
@@ -105,10 +105,10 @@ static NSArray *exampleAppleScripts;
 - (void)windowDidLoad {
     [super windowDidLoad];
     //    [self.blockFilter bind:NSValueBinding toObject:[NSUserDefaults standardUserDefaults]  withKeyPath:@"blockFilter" options:nil];
-    
+
     [[self window] setDelegate:self];
-    
-    
+
+
     self.autoStartAtLogin.state = [self isLoginItem] ? NSOnState : NSOffState;
     self.versionCode.stringValue = [[NSBundle mainBundle] infoDictionary][@"CFBundleShortVersionString"];
     [self refreshFilterRadioAndTextViewState];
@@ -116,19 +116,19 @@ static NSArray *exampleAppleScripts;
     self.whiteListTextView.string = BWFilter.whiteListText;
     self.blackListTextView.font = [NSFont systemFontOfSize:14];
     self.whiteListTextView.font = [NSFont systemFontOfSize:14];
-    
+
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(tableViewSelectionChanged:)
                                                  name:NSTableViewSelectionDidChangeNotification
                                                object:[self appleScriptTableView]];
 
     [[self languageComboBox] addItemsWithObjectValues:@[@"en", @"zh-Hans"]];
-    
+
     NSArray *languages = [[NSUserDefaults standardUserDefaults] objectForKey:@"AppleLanguages"];
     if (languages) {
         [[self languageComboBox] selectItemWithObjectValue:languages[0]];
     }
-    
+
     for (NSUInteger i = 0;i < [exampleAppleScripts count];i += 2) {
         NSMenuItem *item = [[NSMenuItem alloc] init];
         [item setTitle:exampleAppleScripts[i+1]];
@@ -136,10 +136,10 @@ static NSArray *exampleAppleScripts;
         [item setAction:@selector(exampleAppleScriptSelected:)];
         [[[self loadAppleScriptExampleButton] menu] addItem:item];
     }
-    
+
     NSString *readme = [[NSBundle mainBundle] pathForResource:@"README" ofType:@"html"];
     NSString *content = [NSString stringWithContentsOfFile:readme encoding:NSUTF8StringEncoding error:NULL];
-    
+
     [[[self webView] mainFrame] loadHTMLString:content baseURL:[NSURL URLWithString:readme]];
 
     [[self rulesTableView] registerForDraggedTypes:@[MacGestureRuleDataType]];
@@ -162,7 +162,7 @@ static NSArray *exampleAppleScripts;
     //    ((NSScrollView *)(self.blackListTextView.superview.superview)).backgroundColor=BWFilter.isInWhiteListMode?notActive:active;
     self.whiteListTextView.backgroundColor = BWFilter.isInWhiteListMode ? active : notActive;
     //    ((NSScrollView *)(self.whiteListTextView.superview.superview)).backgroundColor=BWFilter.isInWhiteListMode?active:notActive;
-    
+
     [self.whiteListTextView.superview.superview needsLayout];
     [self.whiteListTextView.superview.superview needsDisplay];
     [self.blackListTextView.superview.superview needsLayout];
@@ -186,7 +186,7 @@ static NSArray *exampleAppleScripts;
 
 - (IBAction)changeSizeOfPreferenceWindow:(id)sender {
     [self changeSize:&currentRulesWindowSizeIndex changeSizeButton:[self changeRulesWindowSizeButton] preferenceView:[self rulesPreferenceView]];
-    
+
     //    NSRect rectOfRules=self.rulesPreferenceView.frame;
     //    rectOfRules.size.width=1000;
     //    rectOfRules.size.height=640;
@@ -220,11 +220,11 @@ static NSArray *exampleAppleScripts;
     [self addView:self.appleScriptPreferenceView label:NSLocalizedString(@"AppleScript", nil) image:[NSImage imageNamed:@"AppleScript_Editor_Logo.png"]];
     [self addFlexibleSpacer];
     [self addView:self.aboutPreferenceView label:NSLocalizedString(@"About", nil) image:[NSImage imageNamed:@"About.png"]];
-    
+
     // Optional configuration settings.
     [self setCrossFade:[[NSUserDefaults standardUserDefaults] boolForKey:@"fade"]];
     [self setShiftSlowsAnimation:[[NSUserDefaults standardUserDefaults] boolForKey:@"shiftSlowsAnimation"]];
-    
+
 }
 
 - (IBAction)blockFilterPickBtnDidClick:(id)sender {
@@ -256,7 +256,7 @@ static NSArray *exampleAppleScripts;
             if (!loginItems) {
                 return;
             }
-            
+
             item = LSSharedFileListInsertItemURL(loginItems,
                                                  kLSSharedFileListItemLast,
                                                  NULL,
@@ -264,7 +264,7 @@ static NSArray *exampleAppleScripts;
                                                  (__bridge CFURLRef)bundleURL,
                                                  NULL,
                                                  NULL);
-            
+
             if (item) {
                 CFRelease(item);
             }
@@ -275,15 +275,15 @@ static NSArray *exampleAppleScripts;
             if (!loginItems) {
                 return;
             }
-            
+
             loginItemRef = [self itemRefWithListRef:loginItems];
             if (!loginItemRef) {
                 CFRelease(loginItems);
                 return;
             }
-            
+
             LSSharedFileListItemRemove(loginItems, loginItemRef);
-            
+
             CFRelease(loginItems);
             CFRelease(loginItemRef);
             break;
@@ -298,7 +298,7 @@ static NSArray *exampleAppleScripts;
     } else if (sender == self.blackListModeRadio) {
         BWFilter.isInWhiteListMode = NO;
     }
-    
+
     [self refreshFilterRadioAndTextViewState];
 }
 
@@ -335,7 +335,7 @@ static NSArray *exampleAppleScripts;
     NSFontManager *fontManager = [NSFontManager sharedFontManager];
     [fontManager setSelectedFont:[NSFont fontWithName:[self.fontNameTextField stringValue] size:[self.fontNameTextField floatValue]] isMultiple:NO];
     [fontManager setTarget:self];
-    
+
     NSFontPanel *fontPanel = [fontManager fontPanel:YES];
     [fontPanel makeKeyAndOrderFront:self];
     // This allow to change note color via font panel
@@ -371,7 +371,7 @@ static NSArray *exampleAppleScripts;
         [defs setObject:defaultPrefs[key] forKey:key];
     }
     [defs synchronize];
-    
+
     [MGOptionsDefine resetColors];
 }
 
@@ -384,12 +384,12 @@ static NSArray *exampleAppleScripts;
         [alert runModal];
         return ;
     }
-    
+
     self.pickerWindowController = [[AppPickerWindowController alloc] initWithWindowNibName:@"AppPickerWindowController"];
     self.pickerWindowController.parentWindow = self;
     self.pickerWindowController.indexForParentWindow = [_rulesTableView selectedRow];
     [self.pickerWindowController showWindow:self];
-    
+
     //    [windowController showDialog];
     //    if([windowController generateFilter]){
     //        [[RulesList sharedRulesList] setWildFilter:[windowController generateFilter] atIndex:index];
@@ -408,7 +408,7 @@ static NSArray *exampleAppleScripts;
 
 - (void)exampleAppleScriptSelected:(id)sender {
     NSInteger index = [sender tag];
-    
+
     NSString* path = [[NSBundle mainBundle] pathForResource:exampleAppleScripts[index]
                                                      ofType:@"applescript"];
     NSError* error = nil;
@@ -417,7 +417,7 @@ static NSArray *exampleAppleScripts;
                                                                                         encoding:NSUTF8StringEncoding
                                                                                            error:&error]];
     [[AppleScriptsList sharedAppleScriptsList] save];
-    
+
     [[self appleScriptTableView] reloadData];
     [[self appleScriptTableView] selectRowIndexes:[NSIndexSet indexSetWithIndex:[[AppleScriptsList sharedAppleScriptsList] count] - 1] byExtendingSelection:NO];
 }
@@ -435,7 +435,7 @@ static NSArray *exampleAppleScripts;
             [[self appleScriptTextField] setEnabled:NO];
             [[self appleScriptTextField] setStringValue:@""];
         }
-        
+
         [[self rulesTableView] reloadData];
     }
 }
@@ -454,21 +454,21 @@ static NSString *currentScriptId = nil;
         [alert runModal];
         return ;
     }
-    
+
     if (!isEditing) {
         currentScriptId = [[AppleScriptsList sharedAppleScriptsList] idAtIndex:index];
         NSError *error = nil;
-        
+
         currentScriptPath = [NSString stringWithFormat:@"%@/%@", NSTemporaryDirectory(), currentScriptId];
         [[NSFileManager defaultManager] createDirectoryAtPath:currentScriptPath withIntermediateDirectories:NO attributes:nil error:nil];
-        
+
         currentScriptPath = [NSString stringWithFormat:@"%@/%@", currentScriptPath, @"MacGesture.applescript"];
-        
+
         [[NSFileManager defaultManager] removeItemAtPath:currentScriptPath error:&error];
         [[[AppleScriptsList sharedAppleScriptsList] scriptAtIndex:index] writeToFile:currentScriptPath atomically:YES
                                                                             encoding:NSUTF8StringEncoding error:&error];
         [[NSWorkspace sharedWorkspace] openFile:currentScriptPath];
-        
+
         isEditing = YES;
         [[self editInExternalEditorButton] setTitle:NSLocalizedString(@"Stop",nil)];
     } else {
@@ -476,28 +476,28 @@ static NSString *currentScriptId = nil;
         NSString *content = [NSString stringWithContentsOfFile:currentScriptPath
                                                       encoding:NSUTF8StringEncoding
                                                          error:&error];
-        
+
         if (content != nil) {
             [[AppleScriptsList sharedAppleScriptsList] setScriptAtIndex:index script:content];
             [[AppleScriptsList sharedAppleScriptsList] save];
-            
+
             NSInteger currentIndex = [[self appleScriptTableView] selectedRow];
             NSString *currentId = [[AppleScriptsList sharedAppleScriptsList] idAtIndex:currentIndex];
             if (currentId == currentScriptId && ![content isEqualToString:[[self appleScriptTextField] stringValue]]) {
                 [[self appleScriptTextField] setStringValue:content];
             }
         }
-        
+
         isEditing = NO;
         [[self editInExternalEditorButton] setTitle:NSLocalizedString(@"Edit in External Editor",nil)];
     }
-    
+
     [[self appleScriptTableView] setEnabled:!isEditing];
     [[self loadAppleScriptExampleButton] setEnabled:!isEditing];
     [[self addAppleScriptButton] setEnabled:!isEditing];
     [[self removeAppleScriptButton] setEnabled:!isEditing];
     [[self appleScriptTextField] setEnabled:!isEditing];
-    
+
 }
 
 - (IBAction)appleScriptSelectionChanged:(NSNotification *)notification {
@@ -515,7 +515,7 @@ static NSString *currentScriptId = nil;
 - (void)tableViewSelectionChanged:(NSNotification* )notification
 {
     NSInteger selectedRow = [[self appleScriptTableView] selectedRow];
-    
+
     if (selectedRow != -1) {
         [[self appleScriptTextField] setEnabled:YES];
         [[self appleScriptTextField] setStringValue:[[AppleScriptsList sharedAppleScriptsList] scriptAtIndex:selectedRow]];
@@ -533,12 +533,12 @@ static NSString *currentScriptId = nil;
     NSString *language = [[self languageComboBox] objectValueOfSelectedItem];
     [[NSUserDefaults standardUserDefaults] setObject:@[language] forKey:@"AppleLanguages"];
     [[NSUserDefaults standardUserDefaults] synchronize];
-    
+
     NSUserNotification *notification = [[NSUserNotification alloc] init];
     notification.title = @"MacGesture";
     notification.informativeText = NSLocalizedString(@"Restart MacGesture to take effect", nil);
     notification.soundName = NSUserNotificationDefaultSoundName;
-    
+
     [[NSUserNotificationCenter defaultUserNotificationCenter] deliverNotification:notification];
 }
 
@@ -550,68 +550,68 @@ static NSString *currentScriptId = nil;
 
 - (IBAction)doImport:(id)sender {
     NSOpenPanel *panel = [NSOpenPanel openPanel];
-    
+
     if ([panel runModal] == NSModalResponseOK) {
         NSURL *url = [panel URL];
         NSTask *task = [[NSTask alloc] init];
         [task setLaunchPath:@"/bin/sh"];
-        
+
         NSArray *arguments = @[@"-c",
                 @"defaults import com.codefalling.MacGesture -"];
-        
+
         [task setArguments:arguments];
         NSPipe *pipe = [NSPipe pipe];
         [task setStandardInput:pipe];
-        
+
         NSFileHandle *file = [pipe fileHandleForWriting];
-        
+
         [task launch];
-        
+
         NSData *data = [NSData dataWithContentsOfURL:url];
         if (data) {
             [file writeData:data];
         }
         [file closeFile];
-        
+
         NSUserNotification *notification = [[NSUserNotification alloc] init];
         notification.title = @"MacGesture";
         notification.informativeText = NSLocalizedString(@"Restart MacGesture to take effect", nil);
         notification.soundName = NSUserNotificationDefaultSoundName;
-        
+
         [[NSUserNotificationCenter defaultUserNotificationCenter] deliverNotification:notification];
     }
 }
 
 - (IBAction)doExport:(id)sender {
     NSSavePanel *panel = [NSSavePanel savePanel];
-    
+
     if ([panel runModal] == NSModalResponseOK) {
         NSURL *url = [panel URL];
         NSTask *task = [[NSTask alloc] init];
         [task setLaunchPath:@"/bin/sh"];
-        
+
         NSArray *arguments = @[@"-c",
                 @"defaults export com.codefalling.MacGesture -"];
-        
+
         [task setArguments:arguments];
         NSPipe *pipe = [NSPipe pipe];
         [task setStandardOutput:pipe];
-        
+
         NSFileHandle *file = [pipe fileHandleForReading];
-        
+
         [task launch];
-        
+
         NSData *data = [file readDataToEndOfFile];
         if (data) {
             [data writeToURL:url atomically:YES];
         }
         [file closeFile];
-        
+
         NSUserNotification *notification = [[NSUserNotification alloc] init];
         notification.title = @"MacGesture";
         notification.informativeText = NSLocalizedString(@"Export succeeded", nil);
         notification.soundName = NSUserNotificationDefaultSoundName;
-        
+
         [[NSUserNotificationCenter defaultUserNotificationCenter] deliverNotification:notification];
     }
 }
@@ -660,7 +660,7 @@ static NSString *currentScriptId = nil;
             [alert setAlertStyle:NSInformationalAlertStyle];
             [alert setMessageText:NSLocalizedString(@"Gesture must only contain \"ULDRZud?*\"", nil)];
             [alert runModal];
-            
+
             return NO;
         }
         [control setStringValue:gesture];
@@ -721,7 +721,7 @@ static NSString *currentScriptId = nil;
     NSData* rowData = [pboard dataForType:MacGestureRuleDataType];
     NSIndexSet* rowIndexes = [NSKeyedUnarchiver unarchiveObjectWithData:rowData];
     NSInteger dragRow = [rowIndexes firstIndex];
-    
+
     [[RulesList sharedRulesList] moveRuleFrom:dragRow ruleTo:row];
     [_rulesTableView noteNumberOfRowsChanged];
     if (dragRow < row) {
@@ -772,7 +772,7 @@ static NSString *currentScriptId = nil;
     } else if ([tableColumn.identifier isEqualToString:@"Action"]) {
         if ([rulesList actionTypeAtIndex:row] == ACTION_TYPE_SHORTCUT) {
             SRRecorderControlWithTagid *recordView = [[SRRecorderControlWithTagid alloc] init];
-            
+
             recordView.delegate = self;
             [recordView setAllowedModifierFlags:SRCocoaModifierFlagsMask requiredModifierFlags:0 allowsEmptyModifierFlags:YES];
             recordView.tagid = row;
@@ -781,7 +781,7 @@ static NSString *currentScriptId = nil;
                                        @"modifierFlags" : @([rulesList shortcutFlagAtIndex:row]),
                                        };
             [recordView setEnabled:isEnabled];
-            
+
             result = recordView;
         } else if ([rulesList actionTypeAtIndex:row] == ACTION_TYPE_APPLE_SCRIPT) {
             NSComboBox *comboBox = [[NSComboBox alloc]init];
@@ -794,12 +794,12 @@ static NSString *currentScriptId = nil;
                 [comboBox selectItemAtIndex:index];
             }
             [comboBox setEnabled:isEnabled];
-            
+
             [[NSNotificationCenter defaultCenter] addObserver:self
                                                      selector:@selector(appleScriptSelectionChanged:)
                                                          name:NSComboBoxSelectionDidChangeNotification
                                                        object:comboBox];
-            
+
             result = comboBox;
         }
     } else if ([tableColumn.identifier isEqualToString:@"TriggerOnEveryMatch"]) {
@@ -810,10 +810,10 @@ static NSString *currentScriptId = nil;
         [checkButton setAction:@selector(onTriggerOnEveryMatchChanged:)];
         [checkButton setImagePosition:NSImageOnly];
         [checkButton setEnabled:isEnabled];
-        
+
         result = checkButton;
     }
-    
+
     return result;
 }
 

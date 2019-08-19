@@ -10,7 +10,7 @@
 #import "utils.h"
 
 @implementation RulesList {
-    
+
 }
 
 NSMutableArray<NSMutableDictionary *> *_rulesList;  // private
@@ -68,7 +68,7 @@ NSMutableArray<NSMutableDictionary *> *_rulesList;  // private
 
 + (id)readRulesList {
     id result;
-    
+
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
     result = [defaults objectForKey:@"rules"];
     return result;
@@ -80,7 +80,7 @@ static inline void addWildcardShortcutRule(RulesList *rulesList, NSString *gestu
 
 - (void)reInit {
     [self clear];
-    
+
     addWildcardShortcutRule(self, @"UR", kVK_ANSI_RightBracket, NSShiftKeyMask|NSCommandKeyMask, @"Next Tab");
     addWildcardShortcutRule(self, @"UL", kVK_ANSI_LeftBracket, NSShiftKeyMask|NSCommandKeyMask, @"Prev Tab");
     addWildcardShortcutRule(self, @"DL", kVK_ANSI_F, NSCommandKeyMask|NSControlKeyMask, @"Full screen");
@@ -95,12 +95,12 @@ static inline void addWildcardShortcutRule(RulesList *rulesList, NSString *gestu
     dispatch_once(&pred, ^{
         rulesList = [[RulesList alloc] init];
     });
-    
+
     NSData *data;
     if ((data = [self readRulesList])) {
         rulesList = [[RulesList alloc] initWithNsData:data];
     }
-    
+
     if (rulesList == nil) {
         rulesList = [[RulesList alloc] init];
         [rulesList reInit];
@@ -119,12 +119,12 @@ static inline void pressKeyWithFlags(CGKeyCode virtualKey, CGEventFlags flags) {
     CGEventSetFlags(event, flags);
     CGEventPost(kCGHIDEventTap, event);
     CFRelease(event);
-    
+
     event = CGEventCreateKeyboardEvent(source, virtualKey, false);
     CGEventSetFlags(event, flags);
     CGEventPost(kCGHIDEventTap, event);
     CFRelease(event);
-    
+
     CFRelease(source);
 }
 
@@ -194,7 +194,7 @@ static inline void pressKeyWithFlags(CGKeyCode virtualKey, CGEventFlags flags) {
             }
         }
     }
-    
+
     if (i != [self count]) {
         [self executeActionAt:i];
         return YES;
@@ -243,7 +243,7 @@ static inline void pressKeyWithFlags(CGKeyCode virtualKey, CGEventFlags flags) {
     if (actionType == ACTION_TYPE_SHORTCUT) {
         rule[@"shortcut_code"] = @(shortcutKeyCode);
         rule[@"shortcut_flag"] = @(shortcutFlag);
-        
+
     } else if (actionType == ACTION_TYPE_APPLE_SCRIPT) {
         rule[@"apple_script_id"] = appleScriptId;
     }
@@ -325,7 +325,7 @@ static inline void pressKeyWithFlags(CGKeyCode virtualKey, CGEventFlags flags) {
     if (self) {
         _rulesList = [[NSMutableArray alloc] init];
     }
-    
+
     return self;
 }
 
@@ -338,7 +338,7 @@ static inline void pressKeyWithFlags(CGKeyCode virtualKey, CGEventFlags flags) {
     if (self) {
         _rulesList = [[NSMutableArray alloc] initWithArray:[NSKeyedUnarchiver unarchiveObjectWithData:data]];
     }
-    
+
     return self;
 }
 

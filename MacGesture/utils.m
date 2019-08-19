@@ -2,7 +2,7 @@
 
 NSString *frontBundleName(void) {
     NSRunningApplication *runningApp = [[NSWorkspace sharedWorkspace] frontmostApplication];
-    
+
     if (!runningApp.bundleIdentifier) {
         return @"";
     }
@@ -40,6 +40,3 @@ bool wildcardString(NSString *bundleName, NSString *wildFilter, BOOL ignoreCase)
                             [NSCharacterSet characterSetWithCharactersInString:@"|\n"]];
     return wildcardArray(bundleName, filterArray, ignoreCase);
 }
-
-
-

@@ -139,7 +139,7 @@ defaults import com.codefalling.MacGesture backup.plist
 
 该项目遵循GPL（GNU通用公共许可证）。
 
-图标由[DanRabbit](http://www.iconarchive.com/artist/danrabbit.html) 设计，许可证是 [GNU General Public License](https://en.wikipedia.org/wiki/GNU_General_Public_License) 。 
+图标由[DanRabbit](http://www.iconarchive.com/artist/danrabbit.html) 设计，许可证是 [GNU General Public License](https://en.wikipedia.org/wiki/GNU_General_Public_License) 。
 
 # 贡献者
 

@@ -1,6 +1,6 @@
 //
 //  AppPickerWindowController.m
-//  
+//
 //
 //  Created by codefalling on 15/10/20.
 //
@@ -10,7 +10,7 @@
 #import "RulesList.h"
 
 @interface FilterData : NSObject {
-    
+
 }
 
 @property(strong) NSString *text;
@@ -23,11 +23,11 @@
 
 - (instancetype)initFilterData:(NSString *)text icon:(NSImage *)icon checkedState:(NSInteger)checkedState {
     self = [super init];
-    
+
     self.text = text;
     self.icon = icon;
     self.checkedState = checkedState;
-    
+
     return self;
 }
 
@@ -62,7 +62,7 @@ NSMutableString *_filter;
     if (!emptyIcon) {
         emptyIcon = [[NSImage alloc] initWithSize:NSMakeSize(16, 16)];
     }
-    
+
     if (icon) {
         return icon;
     } else {
@@ -76,7 +76,7 @@ NSMutableString *_filter;
 
 - (void)windowDidLoad {
     [super windowDidLoad];
-    
+
     dispatch_async(dispatch_get_global_queue(0,0), ^{
         for (NSRunningApplication *app in [[NSWorkspace sharedWorkspace] runningApplications]) {
             if (app.activationPolicy == NSApplicationActivationPolicyRegular) {
@@ -86,7 +86,7 @@ NSMutableString *_filter;
                 }
             }
         }
-        
+
         if (!self.addedToTextView) {
             dispatch_async(dispatch_get_main_queue(), ^{
                 [self.filtersTableView reloadData];
@@ -146,7 +146,7 @@ NSMutableString *_filter;
         [textField setStringValue:[_filters[row] text]];
         result = textField;
     }
-    
+
     return result;
 }
 
@@ -172,11 +172,11 @@ NSMutableString *_filter;
             }
         }
     }
-    
+
     if (!self.addedToTextView && self.parentWindow) {
         [self.parentWindow rulePickCallback:_filter atIndex:self.indexForParentWindow];
     }
-    
+
     //    [NSApp stopModal];
     [self close];
 }
